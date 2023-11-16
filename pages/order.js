@@ -12,6 +12,7 @@ const items = {
 
 const OrderPage = () => {
   const router = useRouter();
+  const [responseData, setResponseData] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [itemToggles, setItemToggles] = useState({
@@ -69,11 +70,15 @@ const OrderPage = () => {
       });
 
       if (response.ok) {
-        // Clear the access token from localStorage
-        const data = await response.json();
-        console.log("data", data);
-        // Redirect to the login page
-        // router.push("/login");
+        // Save the response data to state
+        const responseData = await response.json();
+        await setResponseData(responseData);
+
+        // Redirect to the dashboard page with response data
+        router.push({
+          pathname: "/dashboard",
+          query: { responseData: JSON.stringify(responseData) },
+        });
       } else {
         // Handle logout error
         console.error("create order failed:", await response.text());
