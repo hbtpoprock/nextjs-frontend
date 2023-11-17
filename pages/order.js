@@ -24,6 +24,13 @@ const OrderPage = () => {
     }));
   };
 
+  const calculateTotalPrice = () => {
+    return Object.entries(selectedQuantities).reduce(
+      (total, [itemId, quantity]) => total + items[itemId].price * quantity,
+      0
+    );
+  };
+
   const handleSubmit = async () => {
     const selectedItemsArray = Object.entries(selectedQuantities)
       .filter(([_, quantity]) => quantity > 0)
@@ -38,7 +45,8 @@ const OrderPage = () => {
     setTotalPrice(newTotalPrice);
 
     // Log the selected items and total price to the console
-    console.log("Selected Quantities:", selectedItemsArray);
+    console.log("selectedItemsArray:", selectedItemsArray);
+    console.log("selectedQuantities:", selectedQuantities);
     console.log("Total Price:", newTotalPrice);
 
     try {
@@ -51,7 +59,7 @@ const OrderPage = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
-          food_ids: selectedItemsArray,
+          food_ids: selectedQuantities,
           total_price: newTotalPrice,
         }),
       });
@@ -152,7 +160,7 @@ const OrderPage = () => {
             <h3>Selected Quantities:</h3>
             <pre>{JSON.stringify(selectedQuantities, null, 2)}</pre>
             <h3>Total Price:</h3>
-            <p>{totalPrice} USD</p>
+            <p>{calculateTotalPrice()} USD</p>
           </div>
         )}
       </div>
