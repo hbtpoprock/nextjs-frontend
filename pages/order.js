@@ -150,6 +150,7 @@ const OrderPage = () => {
                     : 0
                 )
               }
+              style={{ marginLeft: "8px" }} // Adjust the value as needed
             >
               -
             </Button>
