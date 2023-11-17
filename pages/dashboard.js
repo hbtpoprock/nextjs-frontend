@@ -1,12 +1,14 @@
 // pages/dashboard.js
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Button, Card } from "antd";
+import { Button, Card, message, Select } from "antd";
 import ProtectedRoute from "../components/ProtectedRoute";
+const { Option } = Select;
 
 const DashboardPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
   const responseData = router.query.responseData
     ? JSON.parse(router.query.responseData)
     : null;
@@ -49,6 +51,14 @@ const DashboardPage = () => {
     setLoading(false);
   };
 
+  const handleStatusChange = (value) => {
+    setSelectedStatus(value);
+  };
+
+  const handleSubmit = () => {
+    console.log("Selected Status:", selectedStatus);
+  };
+
   return (
     <ProtectedRoute>
       <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
@@ -64,9 +74,19 @@ const DashboardPage = () => {
             <pre>{JSON.stringify(responseData, null, 2)}</pre>
           </Card>
         )}
-        {/* Your dashboard content goes here */}
-        <Card title="Your Dashboard Content" bordered={false}>
-          {/* Add your dashboard content here */}
+        <Card title="Update Order Status Here" bordered={false}>
+          <Select
+            placeholder="Select status"
+            style={{ width: 200, marginRight: 16 }}
+            onChange={handleStatusChange}
+          >
+            <Option value="preparing">Preparing</Option>
+            <Option value="serving">Serving</Option>
+            <Option value="order_completed">Order Completed</Option>
+          </Select>
+          <Button type="primary" onClick={handleSubmit}>
+            Submit
+          </Button>
         </Card>
       </div>
     </ProtectedRoute>
