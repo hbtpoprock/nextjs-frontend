@@ -1,15 +1,17 @@
 // pages/login.js
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { Input, Button, message } from "antd";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
       const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
@@ -30,45 +32,42 @@ const Login = () => {
         // Redirect to the protected page
         router.push("/order");
 
-        // Optionally, you can reset the error message
-        setErrorMessage(null);
+        // Show success message
+        message.success("Login successful!");
       } else {
         // Handle login error
         const errorMessage = await response.text();
-        setErrorMessage(errorMessage);
-        console.error("Login failed:", errorMessage);
-
-        // Optionally, you can reset the success message
-        setSuccessMessage(null);
+        message.error(`Login failed: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Error during login:", error);
     }
+    setLoading(false);
   };
 
   return (
-    <div>
+    <div style={{ maxWidth: "300px", margin: "auto", marginTop: "100px" }}>
       <h1>Login</h1>
-      <div>
-        <label>Email:</label>
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button onClick={handleLogin}>Login</button>
-
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
+      <Input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ marginBottom: "10px" }}
+      />
+      <Input.Password
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ marginBottom: "20px" }}
+      />
+      <Button
+        type="primary"
+        onClick={handleLogin}
+        loading={loading}
+        style={{ width: "100%" }}
+      >
+        Login
+      </Button>
     </div>
   );
 };
