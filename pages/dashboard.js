@@ -17,7 +17,6 @@ const DashboardPage = () => {
   useEffect(() => {
     console.log("responseDataFromOrderPage", responseDataFromOrderPage?.id);
     if (responseDataFromOrderPage?.id) {
-      // Assuming a function fetchOrderById is defined to fetch order by ID
       fetchOrderById(responseDataFromOrderPage.id);
     }
   }, [router.query.responseData]);
@@ -32,7 +31,6 @@ const DashboardPage = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            // Include the access token in the headers
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
@@ -43,10 +41,7 @@ const DashboardPage = () => {
         console.log("Order Data:", orderData);
         setResponseData(orderData);
         message.success("Fetch order by ID successful!");
-
-        // You can update the state or perform other actions with the fetched order data
       } else {
-        // Handle error
         const errorMessage = await response.text();
         console.error("Fetch order by ID failed:", errorMessage);
         message.error(`Fetch order by ID failed: ${errorMessage}`);
@@ -61,21 +56,17 @@ const DashboardPage = () => {
     setLoading(true);
 
     try {
-      // Call your logout API endpoint
       const response = await fetch("http://localhost:8000/api/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Include the access token in the headers
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
 
       if (response.ok) {
-        // Clear the access token from localStorage
         localStorage.removeItem("accessToken");
 
-        // Redirect to the login page
         router.push("/login");
         message.success("Logout successful!");
       } else {
@@ -107,14 +98,12 @@ const DashboardPage = () => {
     }
 
     try {
-      // Call your update order API endpoint
       const response = await fetch(
         `http://localhost:8000/api/orders/${responseData.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            // Include the access token in the headers
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify({
@@ -124,13 +113,11 @@ const DashboardPage = () => {
       );
 
       if (response.ok) {
-        // Save the response data to state
         const responseData = await response.json();
         await setResponseData(responseData);
 
         message.success("update order successful!");
       } else {
-        // Handle logout error
         const errorMessage = await response.text();
         console.error("update order failed:", errorMessage);
         message.error(`update order failed: ${errorMessage}`);
@@ -145,25 +132,21 @@ const DashboardPage = () => {
     setLoading(true);
 
     try {
-      // Call your delete order API endpoint
       const response = await fetch(
         `http://localhost:8000/api/orders/${responseData.id}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            // Include the access token in the headers
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
       );
 
       if (response.ok) {
-        // Redirect to the order page after successful deletion
         router.push("/order");
         message.success("Delete order successful!");
       } else {
-        // Handle delete order error
         const errorMessage = await response.text();
         console.error("Delete order failed:", errorMessage);
         message.error(`Delete order failed: ${errorMessage}`);
@@ -183,7 +166,6 @@ const DashboardPage = () => {
           </Button>
         </div>
         <h1>Dashboard Page</h1>
-        {/* Display response data if available */}
         {responseData && (
           <Card title="Response Data" style={{ marginBottom: "16px" }}>
             <pre>{JSON.stringify(responseData, null, 2)}</pre>

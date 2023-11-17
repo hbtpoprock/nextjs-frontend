@@ -22,20 +22,15 @@ const Login = () => {
       });
 
       if (response.ok) {
-        // Successful login
         const data = await response.json();
         const accessToken = data.token;
 
-        // Save the access token to localStorage
         localStorage.setItem("accessToken", accessToken);
 
-        // Redirect to the protected page
         router.push("/order");
 
-        // Show success message
         message.success("Login successful!");
       } else {
-        // Handle login error
         const errorMessage = await response.text();
         message.error(`Login failed: ${errorMessage}`);
       }

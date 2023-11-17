@@ -39,7 +39,6 @@ const OrderPage = () => {
       .filter(([_, quantity]) => quantity > 0)
       .map(([itemId, quantity]) => ({ [itemId]: quantity }));
 
-    // Update the state with the total price
     const newTotalPrice = selectedItemsArray.reduce(
       (total, item) =>
         total + items[Object.keys(item)[0]].price * Object.values(item)[0],
@@ -47,7 +46,6 @@ const OrderPage = () => {
     );
     setTotalPrice(newTotalPrice);
 
-    // Log the selected items and total price to the console
     console.log("selectedItemsArray:", selectedItemsArray);
     console.log("selectedQuantities:", selectedQuantities);
     console.log("Total Price:", newTotalPrice);
@@ -57,12 +55,10 @@ const OrderPage = () => {
       return;
     }
     try {
-      // Call your create order API endpoint
       const response = await fetch("http://localhost:8000/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Include the access token in the headers
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
         body: JSON.stringify({
@@ -72,18 +68,15 @@ const OrderPage = () => {
       });
 
       if (response.ok) {
-        // Save the response data to state
         const responseData = await response.json();
         await setResponseData(responseData);
 
-        // Redirect to the dashboard page with response data
         router.push({
           pathname: "/dashboard",
           query: { responseData: JSON.stringify(responseData) },
         });
         message.success("create order successful!");
       } else {
-        // Handle logout error
         const errorMessage = await response.text();
         console.error("create order failed:", errorMessage);
         message.error(`create order failed: ${errorMessage}`);
@@ -98,25 +91,20 @@ const OrderPage = () => {
     setLoading(true);
 
     try {
-      // Call your logout API endpoint
       const response = await fetch("http://localhost:8000/api/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Include the access token in the headers
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
 
       if (response.ok) {
-        // Clear the access token from localStorage
         localStorage.removeItem("accessToken");
 
-        // Redirect to the login page
         router.push("/login");
         message.success("Logout successful!");
       } else {
-        // Handle logout error
         const errorMessage = await response.text();
         console.error("Logout failed:", errorMessage);
         message.error(`Logout failed: ${errorMessage}`);
@@ -150,7 +138,7 @@ const OrderPage = () => {
                     : 0
                 )
               }
-              style={{ marginLeft: "8px" }} // Adjust the value as needed
+              style={{ marginLeft: "8px" }}
             >
               -
             </Button>
