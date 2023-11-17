@@ -1,7 +1,7 @@
 // pages/dashboard.js
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Button, Card, message, Select } from "antd";
+import { Button, Card, message, Select, Popconfirm } from "antd";
 import ProtectedRoute from "../components/ProtectedRoute";
 const { Option } = Select;
 
@@ -141,6 +141,39 @@ const DashboardPage = () => {
     setLoading(false);
   };
 
+  const handleDeleteOrder = async () => {
+    setLoading(true);
+
+    try {
+      // Call your delete order API endpoint
+      const response = await fetch(
+        `http://localhost:8000/api/orders/${responseData.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            // Include the access token in the headers
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        // Redirect to the order page after successful deletion
+        router.push("/order");
+        message.success("Delete order successful!");
+      } else {
+        // Handle delete order error
+        const errorMessage = await response.text();
+        console.error("Delete order failed:", errorMessage);
+        message.error(`Delete order failed: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error during delete order:", error);
+    }
+    setLoading(false);
+  };
+
   return (
     <ProtectedRoute>
       <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
@@ -169,6 +202,26 @@ const DashboardPage = () => {
           <Button type="primary" onClick={handleSubmit} loading={loading}>
             Submit
           </Button>
+        </Card>
+        <Card title="Delete Order" style={{ marginTop: "16px" }}>
+          <Popconfirm
+            title="Are you sure you want to delete this order?"
+            onConfirm={handleDeleteOrder}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              style={{
+                backgroundColor: "#ff4d4f",
+                borderColor: "#ff4d4f",
+                color: "#fff",
+              }}
+              type="danger"
+              loading={loading}
+            >
+              Delete Order
+            </Button>
+          </Popconfirm>
         </Card>
       </div>
     </ProtectedRoute>
