@@ -83,6 +83,7 @@ const OrderPage = () => {
       }
     } catch (error) {
       console.error("Error during create order:", error);
+      message.error(`Error during create order: ${error}`);
     }
     setLoading(false);
   };
@@ -111,6 +112,7 @@ const OrderPage = () => {
       }
     } catch (error) {
       console.error("Error during logout:", error);
+      message.error(`Error during logout: ${error}`);
     }
     setLoading(false);
   };

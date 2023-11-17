@@ -36,6 +36,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error during login:", error);
+      message.error(`Error during login: ${error}`);
     }
     setLoading(false);
   };

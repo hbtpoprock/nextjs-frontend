@@ -48,6 +48,7 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error("Error during fetch order by ID:", error);
+      message.error(`Error during fetch order by ID: ${error}`);
     }
     setLoading(false);
   };
@@ -77,6 +78,7 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error("Error during logout:", error);
+      message.error(`Error during logout: ${error}`);
     }
     setLoading(false);
   };
@@ -124,6 +126,7 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error("Error during update order:", error);
+      message.error(`Error during update order: ${error}`);
     }
     setLoading(false);
   };
@@ -153,6 +156,7 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error("Error during delete order:", error);
+      message.error(`Error during delete order: ${error}`);
     }
     setLoading(false);
   };
