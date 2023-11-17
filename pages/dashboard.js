@@ -9,15 +9,53 @@ const DashboardPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [responseData, setResponseData] = useState(null);
   const responseDataFromOrderPage = router.query.responseData
     ? JSON.parse(router.query.responseData)
     : null;
-  const [responseData, setResponseData] = useState(responseDataFromOrderPage);
 
-  // Use useEffect to redirect to the login page if not authenticated
   useEffect(() => {
-    // Add authentication check logic here if needed
-  }, []);
+    console.log("responseDataFromOrderPage", responseDataFromOrderPage?.id);
+    if (responseDataFromOrderPage?.id) {
+      // Assuming a function fetchOrderById is defined to fetch order by ID
+      fetchOrderById(responseDataFromOrderPage.id);
+    }
+  }, [router.query.responseData]);
+
+  const fetchOrderById = async (orderId) => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/orders/${orderId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            // Include the access token in the headers
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const orderData = await response.json();
+        console.log("Order Data:", orderData);
+        setResponseData(orderData);
+        message.success("Fetch order by ID successful!");
+
+        // You can update the state or perform other actions with the fetched order data
+      } else {
+        // Handle error
+        const errorMessage = await response.text();
+        console.error("Fetch order by ID failed:", errorMessage);
+        message.error(`Fetch order by ID failed: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error during fetch order by ID:", error);
+    }
+    setLoading(false);
+  };
 
   const handleLogout = async () => {
     setLoading(true);
