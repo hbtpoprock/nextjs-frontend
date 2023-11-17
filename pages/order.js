@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { Button } from "antd";
+import { Button, message } from "antd";
 
 const items = {
   1: { name: "Item 1", price: 3 },
@@ -51,7 +51,11 @@ const OrderPage = () => {
     console.log("selectedItemsArray:", selectedItemsArray);
     console.log("selectedQuantities:", selectedQuantities);
     console.log("Total Price:", newTotalPrice);
-
+    if (newTotalPrice == 0) {
+      setLoading(false);
+      message.error(`create order failed: Total Price cannot be 0`);
+      return;
+    }
     try {
       // Call your create order API endpoint
       const response = await fetch("http://localhost:8000/api/orders", {
@@ -77,9 +81,12 @@ const OrderPage = () => {
           pathname: "/dashboard",
           query: { responseData: JSON.stringify(responseData) },
         });
+        message.success("create order successful!");
       } else {
         // Handle logout error
-        console.error("create order failed:", await response.text());
+        const errorMessage = await response.text();
+        console.error("create order failed:", errorMessage);
+        message.error(`create order failed: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Error during create order:", error);
@@ -107,9 +114,12 @@ const OrderPage = () => {
 
         // Redirect to the login page
         router.push("/login");
+        message.success("Logout successful!");
       } else {
         // Handle logout error
-        console.error("Logout failed:", await response.text());
+        const errorMessage = await response.text();
+        console.error("Logout failed:", errorMessage);
+        message.error(`Logout failed: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Error during logout:", error);
