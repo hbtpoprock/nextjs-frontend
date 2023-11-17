@@ -1,7 +1,8 @@
+// pages/order.js
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { Checkbox, Button } from "antd";
+import { Button } from "antd";
 
 const items = {
   1: { name: "Item 1", price: 3 },
@@ -13,45 +14,31 @@ const items = {
 const OrderPage = () => {
   const router = useRouter();
   const [responseData, setResponseData] = useState(null);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedQuantities, setSelectedQuantities] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  const [itemToggles, setItemToggles] = useState({
-    1: false,
-    2: false,
-    3: false,
-    4: false,
-  });
 
-  useEffect(() => {
-    // Add any additional logic you need when the order page loads
-  }, []);
-
-  const handleToggle = (itemId) => {
-    setItemToggles((prevToggles) => ({
-      ...prevToggles,
-      [itemId]: !prevToggles[itemId],
+  const handleQuantityChange = (itemId, quantity) => {
+    setSelectedQuantities((prevQuantities) => ({
+      ...prevQuantities,
+      [itemId]: quantity,
     }));
   };
 
   const handleSubmit = async () => {
-    const selectedItemsArray = Object.entries(itemToggles)
-      .filter(([itemId, isSelected]) => isSelected)
-      .map(([itemId]) => Number(itemId));
-
-    // Update the state with the selected items
-    setSelectedItems(selectedItemsArray);
-
-    // Calculate total price
-    const newTotalPrice = selectedItemsArray.reduce(
-      (total, itemId) => total + items[itemId].price,
-      0
-    );
+    const selectedItemsArray = Object.entries(selectedQuantities)
+      .filter(([_, quantity]) => quantity > 0)
+      .map(([itemId, quantity]) => ({ [itemId]: quantity }));
 
     // Update the state with the total price
+    const newTotalPrice = selectedItemsArray.reduce(
+      (total, item) =>
+        total + items[Object.keys(item)[0]].price * Object.values(item)[0],
+      0
+    );
     setTotalPrice(newTotalPrice);
 
     // Log the selected items and total price to the console
-    console.log("Selected Items:", selectedItemsArray);
+    console.log("Selected Quantities:", selectedItemsArray);
     console.log("Total Price:", newTotalPrice);
 
     try {
@@ -122,39 +109,52 @@ const OrderPage = () => {
           <Button onClick={handleLogout}>Logout</Button>
         </div>
         <h1>Order Page</h1>
-        {/* Toggle buttons for items */}
         {Object.entries(items).map(([itemId, item]) => (
-          <div key={itemId}>
-            <Checkbox
-              checked={itemToggles[itemId]}
-              onChange={() => handleToggle(itemId)}
-            >
+          <div key={itemId} style={{ marginBottom: "10px" }}>
+            <span>
               {item.name} - {item.price} USD
-            </Checkbox>
+            </span>
+            <Button
+              onClick={() =>
+                handleQuantityChange(
+                  itemId,
+                  selectedQuantities[itemId]
+                    ? selectedQuantities[itemId] - 1
+                    : 0
+                )
+              }
+            >
+              -
+            </Button>
+            <span style={{ margin: "0 10px" }}>
+              {selectedQuantities[itemId] || 0}
+            </span>
+            <Button
+              onClick={() =>
+                handleQuantityChange(
+                  itemId,
+                  selectedQuantities[itemId]
+                    ? selectedQuantities[itemId] + 1
+                    : 1
+                )
+              }
+            >
+              +
+            </Button>
           </div>
         ))}
+        <Button type="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
 
-        {/* Submit button on a new line */}
-        <div style={{ marginTop: "10px" }}>
-          <Button type="primary" onClick={handleSubmit}>
-            Submit
-          </Button>
-        </div>
-
-        {/* Display selected items and total price */}
-        {selectedItems.length > 0 && (
+        {Object.entries(selectedQuantities).length > 0 && (
           <div style={{ marginTop: "20px" }}>
-            <h3>Selected Items:</h3>
-            <ul>
-              {selectedItems.map((itemId) => (
-                <li key={itemId}>{items[itemId].name}</li>
-              ))}
-            </ul>
-            <h3>Total Price: {totalPrice} USD</h3>
+            <h3>Selected Quantities:</h3>
+            <pre>{JSON.stringify(selectedQuantities, null, 2)}</pre>
+            <h3>Total Price:</h3>
+            <p>{totalPrice} USD</p>
           </div>
         )}
-
-        {/* Your order page content goes here */}
       </div>
     </ProtectedRoute>
   );
