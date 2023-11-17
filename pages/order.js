@@ -16,6 +16,7 @@ const OrderPage = () => {
   const [responseData, setResponseData] = useState(null);
   const [selectedQuantities, setSelectedQuantities] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleQuantityChange = (itemId, quantity) => {
     setSelectedQuantities((prevQuantities) => ({
@@ -32,6 +33,8 @@ const OrderPage = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
+
     const selectedItemsArray = Object.entries(selectedQuantities)
       .filter(([_, quantity]) => quantity > 0)
       .map(([itemId, quantity]) => ({ [itemId]: quantity }));
@@ -81,9 +84,12 @@ const OrderPage = () => {
     } catch (error) {
       console.error("Error during create order:", error);
     }
+    setLoading(false);
   };
 
   const handleLogout = async () => {
+    setLoading(true);
+
     try {
       // Call your logout API endpoint
       const response = await fetch("http://localhost:8000/api/logout", {
@@ -108,13 +114,16 @@ const OrderPage = () => {
     } catch (error) {
       console.error("Error during logout:", error);
     }
+    setLoading(false);
   };
 
   return (
     <ProtectedRoute>
       <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
         <div style={{ marginBottom: "10px", textAlign: "right" }}>
-          <Button onClick={handleLogout}>Logout</Button>
+          <Button onClick={handleLogout} loading={loading}>
+            Logout
+          </Button>
         </div>
         <h1>Order Page</h1>
         {Object.entries(items).map(([itemId, item]) => (
@@ -151,7 +160,7 @@ const OrderPage = () => {
             </Button>
           </div>
         ))}
-        <Button type="primary" onClick={handleSubmit}>
+        <Button type="primary" onClick={handleSubmit} loading={loading}>
           Submit
         </Button>
 
