@@ -9,9 +9,10 @@ const DashboardPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const responseData = router.query.responseData
+  const responseDataFromOrderPage = router.query.responseData
     ? JSON.parse(router.query.responseData)
     : null;
+  const [responseData, setResponseData] = useState(responseDataFromOrderPage);
 
   // Use useEffect to redirect to the login page if not authenticated
   useEffect(() => {
@@ -55,8 +56,51 @@ const DashboardPage = () => {
     setSelectedStatus(value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setLoading(true);
+
     console.log("Selected Status:", selectedStatus);
+    console.log("responseData.id:", responseData.id);
+
+    if (selectedStatus == null) {
+      setLoading(false);
+      message.error(`update order failed: selectedStatus cannot be null`);
+      return;
+    }
+
+    try {
+      // Call your update order API endpoint
+      const response = await fetch(
+        `http://localhost:8000/api/orders/${responseData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            // Include the access token in the headers
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          body: JSON.stringify({
+            status: selectedStatus,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // Save the response data to state
+        const responseData = await response.json();
+        await setResponseData(responseData);
+
+        message.success("update order successful!");
+      } else {
+        // Handle logout error
+        const errorMessage = await response.text();
+        console.error("update order failed:", errorMessage);
+        message.error(`update order failed: ${errorMessage}`);
+      }
+    } catch (error) {
+      console.error("Error during update order:", error);
+    }
+    setLoading(false);
   };
 
   return (
@@ -84,7 +128,7 @@ const DashboardPage = () => {
             <Option value="serving">Serving</Option>
             <Option value="order_completed">Order Completed</Option>
           </Select>
-          <Button type="primary" onClick={handleSubmit}>
+          <Button type="primary" onClick={handleSubmit} loading={loading}>
             Submit
           </Button>
         </Card>
